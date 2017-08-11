@@ -6,6 +6,13 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(stringr)
+library(lattice)
+library(survival)
+library(Formula)
+library(colorspace)
+library(grid)
+library(VIM)
+library(Hmisc) 
 
 
 ############# Importing Data #################
@@ -82,6 +89,56 @@ train_data <- train %>%
 col_droping = c() ## adding columns to drop here
 
 
+###############impute number colnum 46 --colnum 58################
 
+
+properties<-properties[,-c('censustractandblock','area_patio',
+                 'area_shed','tax_delinquency','tax_delinquency_year')]
+
+#flag_fireplace
+properties$flag_fireplace=ifelse(properties$flag_fireplace=='true',2,properties$flag_fireplace)
+properties$flag_fireplace=ifelse(!is.na(properties$num_fireplace),1,properties$flag_fireplace)
+properties$flag_fireplace=ifelse(is.na(properties$flag_fireplace),0,properties$flag_fireplace)
+
+properties$flag_fireplace=as.factor(properties$flag_fireplace)
+
+unique(properties$flag_fireplace)
+
+#drop number of fireplace
+properties<-properties[,-c('num_fireplace')]
+
+#num_story
+properties$num_story=ifelse(is.na(properties$num_story),0,properties$num_story)
+properties$num_story=ifelse(properties$num_story %in% 4:41,'other',properties$num_story)
+unique(properties$num_story)
+
+properties$num_story=as.factor(properties$num_story)
+
+#build_year
+set.seed(0)
+imputedyear = Hmisc::impute(properties$build_year, "random")
+properties$build_year=imputedyear
+
+#tax (4 cols)
+properties$tax_building=ifelse(is.na(properties$tax_building) & !is.na(properties$tax_land),0,
+                            properties$tax_building)
+set.seed(1)
+imputedtaxt=Hmisc::impute(properties$tax_total, mean)
+properties$tax_total=imputedtaxt
+set.seed(2)
+imputedtl=Hmisc::impute(properties$tax_land,mean)
+properties$tax_land=imputedtl
+
+
+properties$tax_building=ifelse(is.na(properties$tax_building),
+                          properties$tax_total-properties$tax_land,properties$tax_building)
+
+
+set.seed(3)
+imputedtp=Hmisc::impute(properties$tax_property,mean)
+properties$tax_property=imputedtp
+
+properties$tax_year=ifelse(is.na(properties$tax_year),0,1)
+properties$tax_year=as.factor(properties$tax_year)
 
 

@@ -97,7 +97,7 @@ vec_quality = sample(train_data$quality[train_data$quality %in% c(1,4,7,10)],sum
 train_data$quality[is.na(train_data$quality)] = vec_quality
 
 set.seed(0)
-imputed.1 = impute(train_data$area_total_calc, "mean")
+imputed.1 = Hmisc::impute(train_data$area_total_calc, mean)
 train_data$area_total_calc = imputed.1
 
 set.seed(0)

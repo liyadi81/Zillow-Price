@@ -54,7 +54,8 @@ subTest  <- train_data1[-trainIndex,-1]
 
 ################## grid search ##########################
 gridSearch <- trainControl(method = "cv",
-                           number = 3
+                           number = 3,
+                           verboseIter = TRUE
                            )
 
 gbmGrid <-  expand.grid(mtry = 2:13
@@ -66,5 +67,5 @@ under_or_over <- train(logerror ~ .,
                        metric = "Accuracy",
                        maximize = TRUE,
                        tuneGrid = gbmGrid,
-                       trControl = gridSearch,
-                       verbose = TRUE)
+                       trControl = gridSearch
+                       )

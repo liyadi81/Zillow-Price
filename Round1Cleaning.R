@@ -171,7 +171,10 @@ train_data = train_data[,-which(names(train_data) %in% col_droping)]
 
 
 ####Remove region_city for now, come back later
-train_data = train_data[,-which(names(train_data) == "region_city")]
+train_data = train_data[,-which(names(train_data) %in% c("region_city", "year"))]
+
+write.csv(train_data, "train_data_v1.csv")
+
 
 
 

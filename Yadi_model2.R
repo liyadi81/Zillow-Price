@@ -64,8 +64,12 @@ maeSummary <- function(data, lev = NULL, model = NULL) {
 rdmSearch <- trainControl(method = "cv",
                           number = 3,
                           summaryFunction = maeSummary,
-                          search = "random",
                           verboseIter = TRUE)
+
+gbmGrid <-  expand.grid(interaction.depth = c(1,3,5,7), 
+                        n.trees = seq(from = 50, to = 350, by = 100), 
+                        shrinkage = c(0.3, .1, 0.03, .01, 0.003),
+                        n.minobsinnode = 20)
 
 abslogerror <- train(logerror ~ .,
                      data = subTrain, 
@@ -73,8 +77,31 @@ abslogerror <- train(logerror ~ .,
                      preProcess = c("center", "scale"),
                      metric = "MAE",
                      maximize = FALSE,
-                     tuneLength = 3,
+                     tuneGrid = gbmGrid,
                      trControl = rdmSearch
                      )
+
+abslogerror
+plot(abslogerror)
+abslogerror$bestTune
+#     n.trees interaction.depth shrinkage n.minobsinnode
+# 44     350                 5      0.03             20
+
+gbmImp <- varImp(abslogerror, scale = FALSE)
+plot(gbmImp, top = 20)
+
+results <- data.frame(obs = subTest$logerror, 
+                      pred = predict(abslogerror, newdata = subTest))
+maeSummary(results)
+#       MAE 
+# 0.06297067
+
+cor(results)
+#           obs      pred
+# obs  1.0000000 0.2057272
+# pred 0.2057272 1.0000000
+
+saveRDS(abslogerror, "model2_v1.rds")
+
 
 

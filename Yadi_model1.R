@@ -64,8 +64,43 @@ gbmGrid <-  expand.grid(mtry = 2:13
 under_or_over <- train(logerror ~ .,
                        data = subTrain, 
                        method = "rf", 
-                       metric = "Accuracy",
                        maximize = TRUE,
                        tuneGrid = gbmGrid,
                        trControl = gridSearch
                        )
+
+under_or_over
+plot(under_or_over)
+under_or_over$bestTune
+#   mtry
+# 5    6
+
+gbmImp <- varImp(under_or_over, scale = FALSE)
+plot(gbmImp, top = 20)
+
+results <- data.frame(obs = subTest$logerror, 
+                      pred = predict(under_or_over, newdata = subTest))
+table(results)
+#     pred
+# obs    0    1
+#   0 2924 7204
+#   1 2448 9992
+
+saveRDS(under_or_over, "model1_v1.rds")
+
+#######################
+
+gridSearch2 <- trainControl(method = "boot",
+                           number = 5,
+                           verboseIter = TRUE
+)
+
+under_or_over2 <- train(logerror ~ .,
+                       data = train_data1[,-1], 
+                       method = "rf",  
+                       maximize = TRUE,
+                       tuneGrid = under_or_over$bestTune,
+                       trControl = gridSearch2
+)
+
+

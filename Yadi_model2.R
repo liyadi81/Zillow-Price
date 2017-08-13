@@ -16,7 +16,7 @@ library(dplyr)
 train_data1 = fread("train_data_v1.csv", drop = 1)
 
 
-############## only predicting whether absolute logerror ###########
+############## only predicting absolute logerror ###########
 train_data1$logerror = abs(train_data1$logerror)
 
 ############## change columns to factors #############

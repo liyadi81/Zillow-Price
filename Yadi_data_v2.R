@@ -113,7 +113,6 @@ impute0 = c(
   "num_garage", # missing value form one county (3101)
   "area_total_calc", 
   "area_lot",
-  "area_total_finished",
   "num_75_bath",
   "num_unit", # missing value from two county (1286, 2061)
   "build_year",
@@ -141,6 +140,8 @@ train_data <- train_data %>%
 
 ## as.factor for zoning_landuse and region_county
 donothing = c(  # no missing value
+  "logerror",
+  "id_parcel",
   "month", 
   "num_bathroom", 
   "num_bedroom",
@@ -175,10 +176,7 @@ unique(train_data$flag_fireplace)
 # write.csv(missing_zip, "missing_zip_train.csv", row.names = FALSE)
 
 zip = fread("missing_zip_train.csv")
-train_data[, "region_zip"] = ifelse(is.na(train_data$region_zip),
-                                    zip[(train_data$longitude == zip$longitude & 
-                                           train_data$latitude == zip$latitude), zip],
-                                    train_data$region_zip)
+
 for (i in 1:nrow(zip)) {
   train_data[train_data$latitude == zip[i, latitude] & 
                train_data$longitude == zip[i, longitude] &
@@ -213,10 +211,9 @@ col_droping = c(
   "num_fireplace"
 ) 
 
-train_data = train_data[,-which(names(train_data) %in% col_droping)]
+train_data2 = train_data[,-which(names(train_data) %in% col_droping)]
 
 
-write.csv(train_data, "train_data_v2_yadi.csv", row.names = FALSE)
 
 
 
